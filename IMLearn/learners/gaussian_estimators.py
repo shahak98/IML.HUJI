@@ -83,7 +83,7 @@ class UnivariateGaussian:
             raise ValueError("Estimator must first be fitted before calling `pdf` function")
         # raise NotImplementedError()
         else:
-            return (1 / (np.sqrt(self.var_ * 2 * np.pi))) * np.exp(-((X - self.mu_) ** 2) / 2 * self.var_)
+            return (1 / (np.sqrt(self.var_ * 2 * np.pi))) * np.exp(-((X - self.mu_) ** 2) / (2 * self.var_))
 
     @staticmethod
     def log_likelihood(mu: float, sigma: float, X: np.ndarray) -> float:
@@ -106,7 +106,7 @@ class UnivariateGaussian:
         """
         # raise NotImplementedError()
         m = len(X)
-        return -(m / 2) * np.log((2 * np.pi * sigma)) - ((1 / 2 * sigma) * np.sum((X - mu) ** 2))
+        return -(m / 2) * np.log((2 * np.pi * sigma)) - ((1 / (2 * sigma)) * np.sum((X - mu) ** 2))
 
 
 class MultivariateGaussian:
@@ -181,11 +181,10 @@ class MultivariateGaussian:
         """
         if not self.fitted_:
             raise ValueError("Estimator must first be fitted before calling `pdf` function")
-        # raise NotImplementedError()
         else:
             features = X.shape[1]
             matrix = X - self.mu_
-            exp = np.exp(-0.5 * (matrix.T @ np.linalg.inv(self.cov_) @ matrix))
+            exp = np.exp(-0.5 * np.sum((matrix @ np.linalg.inv(self.cov_)) * matrix, axis=1))
             return exp / np.sqrt(((2 * np.pi) ** features) * np.linalg.det(self.cov_))
 
     @staticmethod
@@ -214,15 +213,6 @@ class MultivariateGaussian:
         c = -0.5 * (np.sum(np.sum((X-mu) @ np.linalg.inv(cov) * (X-mu))))  # sum of the m sample
         return a + b + c
 
-    # m = X.shape[0]
-    # d = X.shape[1]
-    # cov_det = np.linalg.det(cov)
-    # cov_inv = np.linalg.inv(cov)
-    # matrix_mult = np.sum((X - mu) @ cov_inv * (X - mu))
-    # a = (-m / 2) * np.log((2 * np.pi) ** d)
-    # b = (-m / 2) * np.log(cov_det)
-    # c = -0.5 * (np.sum(matrix_mult))  # sum of the m sample
-    # return a + b + c
 
 
 

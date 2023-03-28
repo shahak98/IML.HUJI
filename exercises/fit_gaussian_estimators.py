@@ -8,13 +8,11 @@ pio.templates.default = "simple_white"
 
 def test_univariate_gaussian():
     # Question 1 - Draw samples and print fitted model
-    # raise NotImplementedError()
     X = np.random.normal(loc=10, scale=1, size=1000)  # create 1000 samples~N(10,1)
     fit_x = UnivariateGaussian().fit(X)  # Sets `self.mu_`, `self.var_` attributes according to calculated estimation
     print(round(fit_x.mu_, 3), round(fit_x.var_, 3))
 
     # Question 2 - Empirically showing sample mean is consistent
-    # raise NotImplementedError()
     estimated_mean = []
     samples = []
     for m in range(10, 1010, 10):
@@ -50,15 +48,15 @@ def test_multivariate_gaussian(f1=None):
     print(np.round(fit_x.cov_, 3))
 
     # Question 5 - Likelihood evaluation
-    log_likelihood_list = []     # empty list to store the log-likelihood values
+    log_likelihood_list = []  # empty list to store the log-likelihood values
     f_vals = np.linspace(-10, 10, 200)
-    for f1 in f_vals:     # Calculate log-likelihood for each row
+    for f1 in f_vals:  # Calculate log-likelihood for each row
         row = []
         for f3 in f_vals:
             mu = np.array([f1, 0, f3, 0])
             row.append(MultivariateGaussian().log_likelihood(mu, cov, X))
         log_likelihood_list.append(row)
-    log_likelihood = np.array(log_likelihood_list)     # make it a numpy array
+    log_likelihood = np.array(log_likelihood_list)  # make it a numpy array
 
     fig = go.Figure(go.Heatmap(x=f_vals, y=f_vals, z=log_likelihood),
                     layout=dict(title="The Log-Likelihood Function in terms of the Expected Value of the Features",
@@ -66,13 +64,12 @@ def test_multivariate_gaussian(f1=None):
                                 yaxis_title="f3"))
     fig.show()
 
-
     # Question 6 - Maximum likelihood
-    max_likelihood_index = np.unravel_index(np.argmax(log_likelihood, axis=None), log_likelihood.shape)
-    max_likelihood_f1 = f_vals[max_likelihood_index[1]]
-    max_likelihood_f3 = f_vals[max_likelihood_index[0]]
-    print("Setup of maximum likelihood (features 1 and 3):",
-          np.round([max_likelihood_f3, max_likelihood_f1], 3))
+    max_index = log_likelihood.argmax()
+    max_likelihood_index = np.unravel_index(max_index, log_likelihood.shape)
+    max_likelihood_f1 = np.round(f_vals[max_likelihood_index[1]], 3)
+    max_likelihood_f3 = np.round(f_vals[max_likelihood_index[0]], 3)
+    print("maximum likelihood -features 1,3:", [max_likelihood_f3, max_likelihood_f1])
 
 
 if __name__ == '__main__':
