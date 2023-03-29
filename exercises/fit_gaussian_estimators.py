@@ -28,7 +28,6 @@ def test_univariate_gaussian():
                                height=500)).show()
 
     # Question 3 - Plotting Empirical PDF of fitted model
-    # raise NotImplementedError()
     pdf_x = UnivariateGaussian().fit(X).pdf(X)
     go.Figure([go.Scatter(x=X, y=pdf_x, mode='markers', name=r'$\widehat\mu$')],
               layout=go.Layout(title=r"$\text{The Probability Density Function of the Samples Estimated}$",
@@ -39,7 +38,6 @@ def test_univariate_gaussian():
 
 def test_multivariate_gaussian(f1=None):
     # Question 4 - Draw samples and print fitted model
-    # raise NotImplementedError()
     mean = np.array([0, 0, 4, 0])
     cov = np.array([[1, 0.2, 0, 0.5], [0.2, 2, 0, 0], [0, 0, 1, 0], [0.5, 0, 0, 1]])
     X = np.random.multivariate_normal(mean=mean, cov=cov, size=1000)  # create 1000 samples
@@ -53,6 +51,7 @@ def test_multivariate_gaussian(f1=None):
     for f1 in f_vals:  # Calculate log-likelihood for each row
         row = []
         for f3 in f_vals:
+
             mu = np.array([f1, 0, f3, 0])
             row.append(MultivariateGaussian().log_likelihood(mu, cov, X))
         log_likelihood_list.append(row)
@@ -60,8 +59,8 @@ def test_multivariate_gaussian(f1=None):
 
     fig = go.Figure(go.Heatmap(x=f_vals, y=f_vals, z=log_likelihood),
                     layout=dict(title="The Log-Likelihood Function in terms of the Expected Value of the Features",
-                                xaxis_title="f1",
-                                yaxis_title="f3"))
+                                xaxis_title="3",
+                                yaxis_title="1"))
     fig.show()
 
     # Question 6 - Maximum likelihood
@@ -69,7 +68,7 @@ def test_multivariate_gaussian(f1=None):
     max_likelihood_index = np.unravel_index(max_index, log_likelihood.shape)
     max_likelihood_f1 = np.round(f_vals[max_likelihood_index[1]], 3)
     max_likelihood_f3 = np.round(f_vals[max_likelihood_index[0]], 3)
-    print("maximum likelihood -features 1,3:", [max_likelihood_f3, max_likelihood_f1])
+    print("maximum likelihood -  1,3:", [max_likelihood_f3, max_likelihood_f1])
 
 
 if __name__ == '__main__':
