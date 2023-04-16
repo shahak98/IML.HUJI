@@ -3,6 +3,7 @@ from typing import NoReturn
 from ...base import BaseEstimator
 import numpy as np
 from numpy.linalg import pinv
+from IMLearn.metrics.loss_functions import mean_square_error
 
 
 class LinearRegression(BaseEstimator):
@@ -72,8 +73,7 @@ class LinearRegression(BaseEstimator):
         if self.include_intercept_:  # Add a column of 1s to represent the intercept
             new_col = np.ones(X.shape[0], 1)  # Create a new column of 1s with the length of rows in X (samples)
             X = np.c_(new_col, X)  # Add this column to the left of X
-        return X@self.coefs_  # the value of y is calculated by multiplying the relevant row in X with the coefficients
-
+        return X @ self.coefs_  # the value of y is calculated by multiplying the row in X with the coefficients
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
@@ -92,4 +92,5 @@ class LinearRegression(BaseEstimator):
         loss : float
             Performance under MSE loss function
         """
-        raise NotImplementedError()
+        y_predict = self._predict(X)
+        return mean_square_error(y, y_predict)
