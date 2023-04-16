@@ -183,6 +183,7 @@ class MultivariateGaussian:
             exp = np.exp(-0.5 * np.sum((matrix @ np.linalg.inv(self.cov_)) * matrix, axis=1))
             return exp / np.sqrt(((2 * np.pi) ** features) * np.linalg.det(self.cov_))
 
+
     @staticmethod
     def log_likelihood(mu: np.ndarray, cov: np.ndarray, X: np.ndarray) -> float:
         """
