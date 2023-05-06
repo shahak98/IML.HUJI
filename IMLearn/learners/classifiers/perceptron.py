@@ -91,7 +91,7 @@ class Perceptron(BaseEstimator):
                     self.callback_(self, X[i], y[i])  # Perceptron instance, current sample and current response
                     break
 
-        # Call the callback function one last time with None arguments to signal the end of fitting
+        # None arguments to signal the end of fitting
         self.callback_(self, None, None)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:

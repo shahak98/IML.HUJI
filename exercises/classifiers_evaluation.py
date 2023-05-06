@@ -36,16 +36,30 @@ def run_perceptron():
     Create a line plot that shows the perceptron algorithm's training loss values (y-axis)
     as a function of the training iterations (x-axis).
     """
-    for n, f in [("Linearly Separable", "linearly_separable.npy"), ("Linearly Inseparable", "linearly_inseparable.npy")]:
+    for n, f in [("Linearly Separable", "linearly_separable.npy"),
+                 ("Linearly Inseparable", "linearly_inseparable.npy")]:
         # Load dataset
-        raise NotImplementedError()
+        X, y = load_dataset(f"../datasets/{f}")
 
         # Fit Perceptron and record loss in each fit iteration
-        losses = []
-        raise NotImplementedError()
+        losses = []  # store the loss values
+
+        def record_loss(p: Perceptron, _, __):  # Function that record the loss at each iteration
+            losses.append(p.loss(X, y))
+
+        # pass in a function that will be called after each iteration of the fit() method
+        perceptron = Perceptron(callback=record_loss)
+        perceptron.fit(X, y)  # Fit the Perceptron on the input data X and y
 
         # Plot figure of loss as function of fitting iteration
-        raise NotImplementedError()
+        x_vals = list(range(len(losses)))
+        loss_data = go.Scatter(x=x_vals, y=losses, mode='lines')
+        fig = go.Figure(data=[loss_data],
+                        layout=go.Layout(title="Perceptron algorithm's training loss values as"
+                                               " a function of the training iterations",
+                                         xaxis=dict(title='Iteration'),
+                                         yaxis=dict(title='Loss'), width=800))
+        fig.write_image(f"perceptron_fit_{n}.png", engine='orca')
 
 
 def get_ellipse(mu: np.ndarray, cov: np.ndarray):
@@ -79,25 +93,25 @@ def compare_gaussian_classifiers():
     """
     for f in ["gaussian1.npy", "gaussian2.npy"]:
         # Load dataset
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
         # Fit models and predict over training set
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
         # Plot a figure with two suplots, showing the Gaussian Naive Bayes predictions on the left and LDA predictions
         # on the right. Plot title should specify dataset used and subplot titles should specify algorithm and accuracy
         # Create subplots
         from IMLearn.metrics import accuracy
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
         # Add traces for data-points setting symbols and colors
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
         # Add `X` dots specifying fitted Gaussians' means
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
         # Add ellipses depicting the covariances of the fitted Gaussians
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
 
 if __name__ == '__main__':
