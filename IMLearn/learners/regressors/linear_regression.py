@@ -51,9 +51,13 @@ class LinearRegression(BaseEstimator):
         Fits model with or without an intercept depending on value of `self.include_intercept_`
         """
         if self.include_intercept_:  # Add a column of 1s to represent the intercept
-            new_col = np.ones(X.shape[0], 1)  # Create a new column of 1s with the length of rows in X (samples)
-            X = np.c_(new_col, X)  # Add this column to the left of X
-        self.coefs_ = pinv(X) @ y  # # pinv find the pseudo-inverse and as we learn in class w=pseudo-inverse*y
+            # Create a new column of 1s with the length of rows in X (samples)
+            # Add this column to the left of X
+            X = np.c_[np.ones(len(X)), X]
+            # new_col = np.ones(X.shape[0], 1)
+            # X = np.c_(new_col, X)
+        pinv_X = pinv(X)  # pinv find the pseudo-inverse and as we learn in class w=pseudo-inverse*y
+        self.coefs_ = pinv_X @ y
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -71,9 +75,11 @@ class LinearRegression(BaseEstimator):
         """
         # Note to myself: We are now in a different context where we don't know the value of y
         if self.include_intercept_:  # Add a column of 1s to represent the intercept
-            new_col = np.ones(X.shape[0], 1)  # Create a new column of 1s with the length of rows in X (samples)
-            X = np.c_(new_col, X)  # Add this column to the left of X
+            # Create a new column of 1s with the length of rows in X (samples)
+            # Add this column to the left of X
+            X = np.c_[np.ones(len(X)), X]
         return X @ self.coefs_  # the value of y is calculated by multiplying the row in X with the coefficients
+
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
