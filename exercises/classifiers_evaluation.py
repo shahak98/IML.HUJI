@@ -44,7 +44,7 @@ def run_perceptron():
         # Fit Perceptron and record loss in each fit iteration
         losses = []  # store the loss values
 
-        def record_loss(p: Perceptron, _, __):  # Function that record the loss at each iteration
+        def record_loss(p: Perceptron, s, l):  # Function that record the loss at each iteration
             losses.append(p.loss(X, y))
 
         # pass in a function that will be called after each iteration of the fit() method

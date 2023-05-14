@@ -84,13 +84,16 @@ class Perceptron(BaseEstimator):
 
         # Iterate over the data `max_iter_` times, searching for a good separating hyperplane
         for t in range(self.max_iter_):
+            need_to_stop = False
             for i in range(len(y)):
                 # If sample 'i' is misclassified by the current hyperplane
                 if (y[i] * np.dot(self.coefs_, X[i])) <= 0:
+                    need_to_stop = True
                     self.coefs_ += y[i] * X[i]  # Update the hyperplane
                     self.callback_(self, X[i], y[i])  # Perceptron instance, current sample and current response
                     break
-
+            if not need_to_stop:
+                break
         # None arguments to signal the end of fitting
         self.callback_(self, None, None)
 
