@@ -46,7 +46,31 @@ class LDA(BaseEstimator):
         y : ndarray of shape (n_samples, )
             Responses of input data to fit to
         """
-        raise NotImplementedError()
+        # Get unique classes from y and their corresponding counts
+        # self.classes_ contains the unique classes
+        # self.pi_ contains the counts of each class
+        self.classes_, self.pi_ = np.unique(y, return_counts=True)
+        self.pi_ = self.pi_ / len(y)
+
+        self.mu_ = np.zeros((len(self.classes_), X.shape[1]))  # Initialize mean vectors
+        i = 0
+        for c in self.classes_:
+            x_class = X[y == c]  # Select rows in X corresponding to the current class
+            self.mu_[i] = np.mean(x_class, axis=0)  # Calculate mean of each feature
+            i += 1
+
+        # Cov(X, X) = E((X - µX)(X - µX))
+        self.cov_ = np.zeros((X.shape[1], X.shape[1]))  # Initialize covariance matrix
+        i = 0
+        for c in self.classes_:
+            x_class = X[y == c]
+            d = x_class - self.mu_[i]  # Calculate the difference between the samples and the mean
+            self.cov_ += np.dot(d.T, d)  # Accumulate the product of differences (X - µX)(X - µX)
+            i += 1
+        self.cov_ /= (len(X) - len(self.classes_))  # Normalize by the number of samples
+
+        self.cov_inv_ = inv(self.cov_)
+
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
