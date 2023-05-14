@@ -25,6 +25,7 @@ class LDA(BaseEstimator):
     self.pi_: np.ndarray of shape (n_classes)
         The estimated class probabilities. To be set in `GaussianNaiveBayes.fit`
     """
+
     def __init__(self):
         """
         Instantiate an LDA classifier
@@ -71,7 +72,6 @@ class LDA(BaseEstimator):
 
         self.cov_inv_ = inv(self.cov_)
 
-
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
         Predict responses for given samples using fitted estimator
@@ -86,7 +86,7 @@ class LDA(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        raise NotImplementedError()
+        return self.classes_[np.argmax(self.likelihood(X), axis=1)]
 
     def likelihood(self, X: np.ndarray) -> np.ndarray:
         """
@@ -106,7 +106,19 @@ class LDA(BaseEstimator):
         if not self.fitted_:
             raise ValueError("Estimator must first be fitted before calling `likelihood` function")
 
-        raise NotImplementedError()
+        # Formula: p(x|k) = (1 / sqrt((2*pi)^d * det(Sigma_k))) * exp(-0.5 * (x - mu_k)^T * Sigma_k^-1 * (x - mu_k))
+        # Where: k: Class index, mu_k/Sigma_k: Mean/covariance vector of class k
+
+        normalization_factor = np.sqrt(((2 * np.pi) ** X.shape[1]) * np.linalg.det(self.cov_))
+
+        # Subtract X from self.mu_
+        # The np.newaxis is used to add a new axis to self.mu_ to ensure proper broadcasting
+        difference = np.subtract(X, self.mu_[np.newaxis, ...])  # difference = (n_samples, n_classes, n_features)
+
+        exponent = -0.5 * np.sum(difference.dot(self.cov_inv_) * difference,
+                                 axis=2)  # multiplication along the features axis
+        likelihoods = np.exp(exponent) / normalization_factor
+        return likelihoods * self.pi_  # calculate the likelihoods for each sample and class pair
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
