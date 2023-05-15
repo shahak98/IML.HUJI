@@ -87,7 +87,11 @@ class LDA(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        return self.classes_[np.argmax(self.likelihood(X), axis=1)]
+        likelihoods = self.likelihood(X)  # Calculate the likelihood values for each class
+        # Find the index of the class with the highest likelihood for each sample
+        # along the second axis of likelihood (classes)
+        max_indices = np.argmax(likelihoods, axis=1)
+        return self.classes_[max_indices]
 
     def likelihood(self, X: np.ndarray) -> np.ndarray:
         """
@@ -110,8 +114,9 @@ class LDA(BaseEstimator):
         # Formula: p(x|k) = (1 / sqrt((2*pi)^d * det(Sigma_k))) * exp(-0.5 * (x - mu_k)^T * Sigma_k^-1 * (x - mu_k))
         # Where: k: Class index, mu_k/Sigma_k: Mean/covariance vector of class k
         normalization_factor = np.sqrt((2 * np.pi) ** X.shape[1] * np.linalg.det(self.cov_))
-        # The np.new axis is used to add a new axis to self.mu_ to ensure proper broadcasting
-        difference = X[:, np.newaxis, :] - self.mu_
+        # X has shape (n_samples, n_features), self.mu_ has shape (n_classes, n_features)
+        # The resulting array has shape (n_samples, n_classes, n_features) - this is why we add new axis
+        difference = X[:, np.newaxis, :] - self.mu_  # (x - mu)
         # multiplication along the features axis
         exponent = -0.5 * np.sum(difference.dot(self.cov_inv_) * difference, axis=2)
         likelihoods = np.exp(exponent) / normalization_factor
@@ -135,4 +140,4 @@ class LDA(BaseEstimator):
             Performance under missclassification loss function
         """
         from ...metrics import misclassification_error
-        return misclassification_error(y_true=y, y_pred=self._predict(X))
+        return misclassification_error(y, self._predict(X))

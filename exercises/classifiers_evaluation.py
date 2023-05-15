@@ -109,23 +109,26 @@ def compare_gaussian_classifiers():
         naive_accuracy = round(100 * accuracy(y, n_pred), 2)
         lda_accuracy = round(100 * accuracy(y, lda_pred), 2)
 
+        # Create a figure with two subplots, each representing a classifier
         fig = make_subplots(rows=1, cols=2,
                             subplot_titles=(
-                                rf"$\text{{Gaussian Naive Bayes Accuracy={naive_accuracy}%)}}$",
-                                rf"$\text{{LDA Accuracy={lda_accuracy}%)}}$"))
+                                rf"$\text{{Gaussian Naive Bayes Accuracy={naive_accuracy}%}}$",
+                                rf"$\text{{LDA Accuracy={lda_accuracy}%}}$"))
 
         # Add traces for data-points setting symbols and colors
-        fig.add_traces([go.Scatter(x=X[:, 0], y=X[:, 1], mode='markers',
-                                   marker=dict(color= n_pred, symbol=class_symbols[y], colorscale=class_colors(3))),
-                        go.Scatter(x=X[:, 0], y=X[:, 1], mode='markers',
-                                   marker=dict(color=lda_pred, symbol=class_symbols[y], colorscale=class_colors(3)))],
+        fig.add_traces([go.Scatter(x=X[:, 0], y=X[:, 1], mode='markers', showlegend=False,
+                                   marker=dict(color=n_pred, symbol=class_symbols[y], colorscale=class_colors(3)),
+                                   line=dict(color="black", width=1)),
+                        go.Scatter(x=X[:, 0], y=X[:, 1], mode='markers', showlegend=False,
+                                   marker=dict(color=lda_pred, symbol=class_symbols[y], colorscale=class_colors(3)),
+                                   line=dict(color="black", width=1))],
                        rows=[1, 1], cols=[1, 2])
 
         # Add `X` dots specifying fitted Gaussians' means
         fig.add_traces([go.Scatter(x=n_classifier.mu_[:, 0], y=n_classifier.mu_[:, 1], mode="markers",
-                                   marker=dict(symbol="x", color="black", size=15)),
+                                   marker=dict(symbol="x", color="black", size=10)),
                         go.Scatter(x=lda_classifier.mu_[:, 0], y=lda_classifier.mu_[:, 1], mode="markers",
-                                   marker=dict(symbol="x", color="black", size=15))],
+                                   marker=dict(symbol="x", color="black", size=10))],
                        rows=[1, 1], cols=[1, 2])
 
         # Add ellipses depicting the covariances of the fitted Gaussians
@@ -134,10 +137,21 @@ def compare_gaussian_classifiers():
                             get_ellipse(lda_classifier.mu_[i], lda_classifier.cov_)],
                            rows=[1, 1], cols=[1, 2])
 
-        fig.update_yaxes(scaleanchor="x", scaleratio=1)
-        fig.update_layout(title_text=rf"$\text{{Comparing Gaussian Classifiers - {f[:-4]} dataset}}$",
-                          width=800, height=400, showlegend=False)
-        fig.write_image(f"lda.vs.naive.bayes.{f[:-4]}.png",engine='orca')
+        fig.update_yaxes(scaleanchor="x", scaleratio=1) # Update y-axis scaling to match x-axis (better visualization)
+        fig.update_layout(
+            title={
+                "text": f"<b>Comparing Gaussian Classifiers - {f[:-4]} dataset</b>",
+                "x": 0.5,
+                "xanchor": "center",
+                "yanchor": "bottom",
+                "font": {"size": 12}
+            },
+            width=800,
+            height=600,
+            showlegend=False
+        )
+
+        fig.write_image(f"lda.vs.naive.bayes.{f[:-4]}.png", engine='orca')
 
 
 if __name__ == '__main__':

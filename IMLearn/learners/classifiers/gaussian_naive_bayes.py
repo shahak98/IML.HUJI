@@ -98,6 +98,8 @@ class GaussianNaiveBayes(BaseEstimator):
             raise ValueError("Estimator must first be fitted before calling `likelihood` function")
 
         # The likelihood is calculated by applying the formula for the PDF to each feature for each class
+        # PDF(x) = (1 / sqrt(2 * pi * variance)) * exp(-(x - mean)^2 / (2 * variance))
+
         # X has shape (n_samples, n_features), self.mu_ has shape (n_classes, n_features)
         # The resulting array has shape (n_samples, n_classes, n_features) - this is why we add new axis
         difference = (X[:, np.newaxis, :] - self.mu_) ** 2  # Calculate the squared difference between X and self.mu_
@@ -130,4 +132,4 @@ class GaussianNaiveBayes(BaseEstimator):
             Performance under missclassification loss function
         """
         from ...metrics import misclassification_error
-        return misclassification_error(y_true=y, y_pred=self._predict(X))
+        return misclassification_error(y, self._predict(X))
