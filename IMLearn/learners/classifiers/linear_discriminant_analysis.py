@@ -60,15 +60,15 @@ class LDA(BaseEstimator):
             self.mu_[i] = np.mean(x_class, axis=0)  # Calculate mean of each feature
             i += 1
 
-        # Cov(X, X) = E((X - µX)(X - µX))
+        # Cov = (1/(m-k)) * (xi-mu)(xi-U).T
         self.cov_ = np.zeros((X.shape[1], X.shape[1]))  # Initialize covariance matrix
         i = 0
         for c in self.classes_:
             x_class = X[y == c]
             d = x_class - self.mu_[i]  # Calculate the difference between the samples and the mean
-            self.cov_ += np.dot(d.T, d)  # Accumulate the product of differences (X - µX)(X - µX)
+            self.cov_ += np.dot(d, d.T)  # Accumulate the product of differences (X - µX)(X - µX)
             i += 1
-        self.cov_ /= (len(X) - len(self.classes_))  # Normalize by the number of samples
+        self.cov_ /= (len(X) - len(self.classes_))  # Normalize by the number of samples - unbiased 1/(m-k)
 
         self.cov_inv_ = inv(self.cov_)
 
