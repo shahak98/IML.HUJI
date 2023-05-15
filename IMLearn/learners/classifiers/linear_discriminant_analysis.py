@@ -61,14 +61,15 @@ class LDA(BaseEstimator):
             i += 1
 
         # Cov = (1/(m-k)) * (xi-mu)(xi-U).T
-        self.cov_ = np.zeros((X.shape[1], X.shape[1]))  # Initialize covariance matrix
-        i = 0
-        for c in self.classes_:
-            x_class = X[y == c]
-            d = x_class - self.mu_[i]  # Calculate the difference between the samples and the mean
-            self.cov_ += np.dot(d, d.T)  # Accumulate the product of differences (X - µX)(X - µX)
-            i += 1
-        self.cov_ /= (len(X) - len(self.classes_))  # Normalize by the number of samples - unbiased 1/(m-k)
+        c = X - self.mu_[y.astype(int)]
+        # Calculate the products of differences between samples and class means,
+        # organized in a 3D structure, where each 2D slice represents the products for a specific class.
+        # "ki,kj->kij" specifies the desired contraction of indices - class(k) row(i) and col (j)
+        c_product = np.einsum("ki,kj->kij", c, c)
+        # Sum the products of differences along the first axis (classes)
+        cov_sum = np.sum(c_product, axis=0)
+        # Divide the sum by the number of samples minus the number of classes
+        self.cov_ = cov_sum / (len(X) - len(self.classes_))
 
         self.cov_inv_ = inv(self.cov_)
 
@@ -108,15 +109,11 @@ class LDA(BaseEstimator):
 
         # Formula: p(x|k) = (1 / sqrt((2*pi)^d * det(Sigma_k))) * exp(-0.5 * (x - mu_k)^T * Sigma_k^-1 * (x - mu_k))
         # Where: k: Class index, mu_k/Sigma_k: Mean/covariance vector of class k
-
-        normalization_factor = np.sqrt(((2 * np.pi) ** X.shape[1]) * np.linalg.det(self.cov_))
-
-        # Subtract X from self.mu_
-        # The np.newaxis is used to add a new axis to self.mu_ to ensure proper broadcasting
-        difference = np.subtract(X, self.mu_[np.newaxis, ...])  # difference = (n_samples, n_classes, n_features)
-
-        exponent = -0.5 * np.sum(difference.dot(self.cov_inv_) * difference,
-                                 axis=2)  # multiplication along the features axis
+        normalization_factor = np.sqrt((2 * np.pi) ** X.shape[1] * np.linalg.det(self.cov_))
+        # The np.new axis is used to add a new axis to self.mu_ to ensure proper broadcasting
+        difference = X[:, np.newaxis, :] - self.mu_
+        # multiplication along the features axis
+        exponent = -0.5 * np.sum(difference.dot(self.cov_inv_) * difference, axis=2)
         likelihoods = np.exp(exponent) / normalization_factor
         return likelihoods * self.pi_  # calculate the likelihoods for each sample and class pair
 
