@@ -60,7 +60,7 @@ class LDA(BaseEstimator):
             self.mu_[i] = np.mean(x_class, axis=0)  # Calculate mean of each feature
             i += 1
 
-        # Cov = (1/(m-k)) * (xi-mu)(xi-U).T
+        # Cov = (1/(m-k)) * (xi-mu)(xi-mu).T
         c = X - self.mu_[y.astype(int)]
         # Calculate the products of differences between samples and class means,
         # organized in a 3D structure, where each 2D slice represents the products for a specific class.

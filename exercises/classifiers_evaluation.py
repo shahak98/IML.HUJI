@@ -117,10 +117,10 @@ def compare_gaussian_classifiers():
 
         # Add traces for data-points setting symbols and colors
         fig.add_traces([go.Scatter(x=X[:, 0], y=X[:, 1], mode='markers', showlegend=False,
-                                   marker=dict(color=n_pred, symbol=class_symbols[y], colorscale=class_colors(3)),
+                                   marker=dict(color=n_pred, symbol=class_symbols[y], colorscale='Viridis'),
                                    line=dict(color="black", width=1)),
                         go.Scatter(x=X[:, 0], y=X[:, 1], mode='markers', showlegend=False,
-                                   marker=dict(color=lda_pred, symbol=class_symbols[y], colorscale=class_colors(3)),
+                                   marker=dict(color=lda_pred, symbol=class_symbols[y], colorscale='Viridis'),
                                    line=dict(color="black", width=1))],
                        rows=[1, 1], cols=[1, 2])
 
@@ -132,12 +132,18 @@ def compare_gaussian_classifiers():
                        rows=[1, 1], cols=[1, 2])
 
         # Add ellipses depicting the covariances of the fitted Gaussians
-        for i in range(3):
+        for i in range(len(np.unique(y))):
             fig.add_traces([get_ellipse(n_classifier.mu_[i], np.diag(n_classifier.vars_[i])),
                             get_ellipse(lda_classifier.mu_[i], lda_classifier.cov_)],
                            rows=[1, 1], cols=[1, 2])
 
-        fig.update_yaxes(scaleanchor="x", scaleratio=1) # Update y-axis scaling to match x-axis (better visualization)
+        # Update x-axis and y-axis titles
+        fig.update_xaxes(title_text="Feature 1", row=1, col=1)
+        fig.update_yaxes(title_text="Feature 2", row=1, col=1)
+        fig.update_xaxes(title_text="Feature 1", row=1, col=2)
+        fig.update_yaxes(title_text="Feature 2", row=1, col=2)
+
+        fig.update_yaxes(scaleanchor="x", scaleratio=1)  # Update y-axis scaling to match x-axis (better visualization)
         fig.update_layout(
             title={
                 "text": f"<b>Comparing Gaussian Classifiers - {f[:-4]} dataset</b>",
