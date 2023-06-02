@@ -136,6 +136,8 @@ class AdaBoost(BaseEstimator):
         # Apply the sign function to convert the weighted prediction into binary responses
         return np.sign(weighted_prediction)
 
+
+
     def partial_loss(self, X: np.ndarray, y: np.ndarray, T: int) -> float:
         """
             Evaluate performance under misclassification loss function using fitted estimators up to T learners

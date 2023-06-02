@@ -113,36 +113,25 @@ class DecisionStump(BaseEstimator):
 
         # Sort the values and rearrange the corresponding labels accordingly
         sorted_indices = np.argsort(values)
-        sorted_values = values[sorted_indices]
-        sorted_labels = labels[sorted_indices]
+        values = values[sorted_indices]
+        labels = labels[sorted_indices]
 
-        thresholds = np.concatenate([[-np.inf], sorted_values[1:], [np.inf]])
+        # Calculate the loss in the scenario where all values are classified as `sign` -
+        # threshold is equal to the first value
+        loss_first = np.sum(np.abs(labels)[labels * sign < 0])
+        # Calculate the cumulative errors for each possible threshold value (excluding the first value)
+        # The resulting array will store the loss for each potential threshold value(all values + inf)
+        loss_arr = np.append(loss_first, loss_first - np.cumsum(-labels * sign))
+        # now we need to add inf as a potential threshold, and to replace the first value with -inf (will be the same)
+        values = np.insert(values, len(values), np.inf)
+        values[0] = -np.inf
 
-        # Calculate the loss in the scenario where all values are classified as `sign`
-        errors = np.sum(np.abs(sorted_labels[sorted_labels * sign > 0]))
+        # Find the index corresponding to the minimum error
+        index_min_loss = np.argmin(loss_arr)
+        best_threshold = values[index_min_loss]
+        loss_of_threshold = loss_arr[index_min_loss]
 
-        errors = np.append(errors, errors - np.cumsum(sorted_labels * sign))
-
-        min_error_index = np.argmin(errors)
-
-        return float(thresholds[min_error_index]), float(errors[min_error_index])
-
-    # Initialize variables to track the best threshold and error
-    # best_threshold = None
-    # best_error = float('inf')
-    #
-    # # Iterate over all possible thresholds
-    # for t in np.unique(values):  # Get unique values as potential thresholds
-    #     # Predict the labels based on whether the values are less than the threshold (t)
-    #     predictions = np.where(values < t, -sign, sign)
-    #     # Calculate the misclassification loss by comparing the predicted labels with the true labels
-    #     loss = np.sum(labels != predictions)
-    #
-    #     if loss < best_error:
-    #         best_error = loss
-    #         best_threshold = t
-    #
-    # return best_threshold, best_error
+        return best_threshold, loss_of_threshold
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
